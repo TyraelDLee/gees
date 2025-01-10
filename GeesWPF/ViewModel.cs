@@ -12,108 +12,136 @@ using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Forms;
 
-namespace GeesWPF {
-    public class ViewModel : INotifyPropertyChanged {
+namespace GeesWPF
+{
+    public class ViewModel : INotifyPropertyChanged
+    {
         public event PropertyChangedEventHandler PropertyChanged;
-    
+
         private bool updatable = false;
         private string planeFilter = "";
         private DataTable logTable = new DataTable();
-        public ViewModel() {
+
+        public ViewModel()
+        {
             Connected = false;
             updatable = false;
             UpdateTable();
         }
+
         #region Main Form Data
-        public string Version {
-            get {
+
+        public string Version
+        {
+            get
+            {
                 System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
-                System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+                System.Diagnostics.FileVersionInfo fvi =
+                    System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
                 string myversion = fvi.FileVersion;
-                return myversion; 
+                return myversion;
             }
         }
 
         bool connected;
-        public bool Connected {
-            get {
-                return connected;
-            }
-            set {
+
+        public bool Connected
+        {
+            get { return connected; }
+            set
+            {
                 connected = value;
                 OnPropertyChanged();
             }
         }
 
-        public string ConnectedString {
-            get {
-                if (Connected) {
+        public string ConnectedString
+        {
+            get
+            {
+                if (Connected)
+                {
                     return "Connected";
                 }
-                else {
+                else
+                {
                     return "Disconnected";
                 }
             }
         }
 
-        public string ConnectedColor {
-            get {
-                if (!Connected) {
+        public string ConnectedColor
+        {
+            get
+            {
+                if (!Connected)
+                {
                     return "#FFE63946";
                 }
-                else {
+                else
+                {
                     return "#ff02c39a";
                 }
             }
         }
 
-        public bool Updatable {
-            get {
-                return updatable;
-            }
-            set {
+        public bool Updatable
+        {
+            get { return updatable; }
+            set
+            {
                 updatable = value;
                 OnPropertyChanged();
             }
         }
 
-        public List<int> Displays {
-            get {
+        public List<int> Displays
+        {
+            get
+            {
                 List<int> displays = new List<int>();
-                for (int i = 0; i < Screen.AllScreens.Length; i++) {
+                for (int i = 0; i < Screen.AllScreens.Length; i++)
+                {
                     displays.Add(i + 1);
                 }
+
                 return displays;
             }
         }
+
         #endregion
 
         #region My Landings data
-        public DataTable LandingTable {
-            get {
-                return logTable;
-            }
+
+        public DataTable LandingTable
+        {
+            get { return logTable; }
         }
-        public string PlaneFilter {
-            get {
-                return planeFilter;
-            }
-            set {
+
+        public string PlaneFilter
+        {
+            get { return planeFilter; }
+            set
+            {
                 planeFilter = value;
                 logTable.DefaultView.RowFilter = "Plane Like '%" + value + "%'";
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LandingTable"));
             }
         }
 
-        public void UpdateTable() {
+        public void UpdateTable()
+        {
             LandingLogger logger = new LandingLogger();
             logTable = logger.LandingLog;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LandingTable"));
         }
+
         #endregion
 
         #region Landing Rate Data
-        public class Parameters {
+
+        public class Parameters
+        {
             public string Name { get; set; }
             public int FPM { get; set; }
             public double Gees { get; set; }
@@ -126,7 +154,8 @@ namespace GeesWPF {
         }
 
 
-        private Parameters _lastLandingParams = new Parameters {
+        private Parameters _lastLandingParams = new Parameters
+        {
             Name = null,
             FPM = -125,
             Gees = 1.22,
@@ -137,18 +166,24 @@ namespace GeesWPF {
             Slip = 1.53,
             Bounces = 0
         };
-        public void SetParams (Parameters value) {
+
+        public void SetParams(Parameters value)
+        {
             _lastLandingParams = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
 
-        public void BounceParams() {
+        public void BounceParams()
+        {
             _lastLandingParams.Bounces += 1;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
-        public void LogParams() {
+
+        public void LogParams()
+        {
             LandingLogger logger = new LandingLogger();
-            logger.EnterLog(new LandingLogger.LogEntry {
+            logger.EnterLog(new LandingLogger.LogEntry
+            {
                 Time = DateTime.Now,
                 Plane = _lastLandingParams.Name,
                 Fpm = _lastLandingParams.FPM,
@@ -164,67 +199,93 @@ namespace GeesWPF {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
 
-        public string FPMText {
+        public string FPMText
+        {
             get { return _lastLandingParams.FPM.ToString("0 fpm"); }
         }
-        
-        public string GeesText {
+
+        public string GeesText
+        {
             get { return _lastLandingParams.Gees.ToString("0.## G"); }
         }
-        
-        public string GeesImage {
-            get {
-                if (_lastLandingParams.Gees < 1.2) {
+
+        public string GeesImage
+        {
+            get
+            {
+                if (_lastLandingParams.Gees < 1.2)
+                {
                     return "/Images/smile.png";
                 }
-                else if (_lastLandingParams.Gees < 1.4) {
+                else if (_lastLandingParams.Gees < 1.4)
+                {
                     return "/Images/meh.png";
                 }
-                else if (_lastLandingParams.Gees < 1.8) {
+                else if (_lastLandingParams.Gees < 1.8)
+                {
                     return "/Images/frown.png";
                 }
-                else {
+                else
+                {
                     return "/Images/tired.png";
                 }
             }
         }
-        public string SpeedsText {
-            get { return String.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(_lastLandingParams.Airspeed), Convert.ToInt32(_lastLandingParams.Groundspeed)); }
+
+        public string SpeedsText
+        {
+            get
+            {
+                return String.Format("{0} kt Air - {1} kt Ground", Convert.ToInt32(_lastLandingParams.Airspeed),
+                    Convert.ToInt32(_lastLandingParams.Groundspeed));
+            }
         }
-        public string WindSpeedText {
-            get {
+
+        public string WindSpeedText
+        {
+            get
+            {
                 double Crosswind = _lastLandingParams.Crosswind;
                 double Headwind = _lastLandingParams.Headwind;
                 double windamp = Math.Sqrt(Crosswind * Crosswind + Headwind * Headwind);
                 return Convert.ToInt32(windamp) + " kt";
             }
         }
-        public int WindDirection {
-            get {
+
+        public int WindDirection
+        {
+            get
+            {
                 double Crosswind = _lastLandingParams.Crosswind;
                 double Headwind = _lastLandingParams.Headwind;
                 double windangle = Math.Atan2(Crosswind, Headwind) * 180 / Math.PI;
                 return Convert.ToInt32(windangle);
             }
         }
-        public string AlphaText {
+
+        public string AlphaText
+        {
             get { return _lastLandingParams.Slip.ToString("0.##º Left Sideslip; 0.##º Right Sideslip;"); }
         }
 
-        public string BouncesText {
-            get {
+        public string BouncesText
+        {
+            get
+            {
                 string unit = " bounces";
                 if (_lastLandingParams.Bounces == 1)
                 {
                     unit = " bounce";
                 }
-                return _lastLandingParams.Bounces.ToString() + unit; 
+
+                return _lastLandingParams.Bounces.ToString() + unit;
             }
         }
 
         #endregion
 
-        protected void OnPropertyChanged([CallerMemberName] String propertyName = "") {
+        protected void OnPropertyChanged([CallerMemberName] String propertyName = "")
+        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(""));
         }
     }

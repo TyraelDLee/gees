@@ -3,7 +3,7 @@
 <p align="center">
   <img src="https://github.com/scelts/msfslandingrate/blob/master/Icons/icon.png" alt="Logo" width="32" height="32">
 
-  <h1 align="center">Gees</h3>
+  <h1 align="center">Gees</h1>
 
   <p align="center">
   In game landing analysis for Microsoft Flight Simulator 2020.
@@ -57,6 +57,22 @@ CTrue.FsConnect
 Octokit
 PrettyBin
 CsvHelper
+```
+
+## For Steam User
+To automatically run Gees with run the Simulator in Steam:
+- Create a bat file anywhere you like with the text below.:
+```
+@echo off
+
+start "" "location of MSFS installed\FlightSimulator.exe" -provider Steam
+start "" "location of Gees\Gees.exe"
+
+exit
+```
+- Add the launch options in Steam for MSFS:
+```
+"location of the bat file\start.bat" %COMMAND%
 ```
 ## Contact
 Use the [reddit page](https://www.reddit.com/r/MSFS2020LandingRate), or here, the [Issues page](https://github.com/scelts/msfslandingrate/issues) to report bugs and suggestions. Please do.

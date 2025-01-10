@@ -27,13 +27,16 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 using MouseEventArgs = System.Windows.Forms.MouseEventArgs;
 
 
-namespace GeesWPF {
-    public enum Requests {
+namespace GeesWPF
+{
+    public enum Requests
+    {
         PlaneInfo = 0
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    public struct PlaneInfoResponse {
+    public struct PlaneInfoResponse
+    {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
         public string Type;
 
@@ -51,7 +54,8 @@ namespace GeesWPF {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window
+    {
         #region Publics and statics
 
         static bool ShowLanding = false;
@@ -139,14 +143,20 @@ namespace GeesWPF {
 
         #region Reading and processing simconnect data
 
-        private void timerRead_Tick(object sender, EventArgs e) {
-            if (!ShowLanding) {
-                try {
+        private void timerRead_Tick(object sender, EventArgs e)
+        {
+            if (!ShowLanding)
+            {
+                try
+                {
                     fsConnect.RequestData(Requests.PlaneInfo, Requests.PlaneInfo);
                 }
-                catch { }
+                catch
+                {
+                }
             }
-            else {
+            else
+            {
                 calculateLanding();
                 int BOUNCE_TIMER = Properties.Settings.Default.CloseAfterLanding * 1000;
                 timerBounce.Interval = new TimeSpan(0, 0, 0, 0, BOUNCE_TIMER);
@@ -154,43 +164,55 @@ namespace GeesWPF {
             }
         }
 
-        private static void HandleReceivedFsData(object sender, FsDataReceivedEventArgs e) {
-            if (!SafeToRead) {
+        private static void HandleReceivedFsData(object sender, FsDataReceivedEventArgs e)
+        {
+            if (!SafeToRead)
+            {
                 Console.WriteLine("lost one");
                 return;
             }
 
             SafeToRead = false;
-            try {
-                if (e.RequestId == (uint)Requests.PlaneInfo) {
-                    if (!ShowLanding) {
+            try
+            {
+                if (e.RequestId == (uint)Requests.PlaneInfo)
+                {
+                    if (!ShowLanding)
+                    {
                         PlaneInfoResponse r = (PlaneInfoResponse)e.Data.FirstOrDefault();
                         //ignore when noone is flying
-                        if (r.ForwardSpeed < 4) {
+                        if (r.ForwardSpeed < 4)
+                        {
                             //if less then 4kt, it's not a landing or out to menu
                             SafeToRead = true;
                             return;
                         }
 
-                        if (r.OnGround) {
+                        if (r.OnGround)
+                        {
                             Onground.Add(r);
-                            if (Onground.Count > BUFFER_SIZE) {
+                            if (Onground.Count > BUFFER_SIZE)
+                            {
                                 Onground.RemoveAt(0);
-                                if (Inair.Count == BUFFER_SIZE) {
+                                if (Inair.Count == BUFFER_SIZE)
+                                {
                                     ShowLanding = true;
                                 }
                             }
                         }
-                        else {
+                        else
+                        {
                             Inair.Add(r);
-                            if (Inair.Count > BUFFER_SIZE) {
+                            if (Inair.Count > BUFFER_SIZE)
+                            {
                                 Inair.RemoveAt(0);
                             }
 
                             Onground.Clear();
                         }
 
-                        if (Inair.Count > BUFFER_SIZE || Onground.Count > BUFFER_SIZE) {
+                        if (Inair.Count > BUFFER_SIZE || Onground.Count > BUFFER_SIZE)
+                        {
                             //maximum 1 for race condition
                             Inair.Clear();
                             Onground.Clear();
@@ -200,23 +222,28 @@ namespace GeesWPF {
                     }
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.Message);
             }
 
             SafeToRead = true;
         }
 
-        private void calculateLanding() {
+        private void calculateLanding()
+        {
             //impact calculation
-            try {
+            try
+            {
                 double fpm = 60 * Onground.ElementAt(0).LandingRate;
                 Int32 FPM = Convert.ToInt32(-fpm);
 
                 double gees = 0;
                 //int Gforcemeterlen = 100 / SAMPLE_RATE; // take 100ms average for G force
-                for (int i = 0; i < BUFFER_SIZE; i++) {
-                    if (Onground.ElementAt(i).Gforce > gees) {
+                for (int i = 0; i < BUFFER_SIZE; i++)
+                {
+                    if (Onground.ElementAt(i).Gforce > gees)
+                    {
                         gees = Onground.ElementAt(i).Gforce;
                     }
                     /*gees += Onground.ElementAt(i).Gforce;
@@ -228,9 +255,11 @@ namespace GeesWPF {
 
                 double incAngle = Math.Atan(Inair.Last().LateralSpeed / Inair.Last().ForwardSpeed) * 180 / Math.PI;
 
-                if (bounces == 0) {
+                if (bounces == 0)
+                {
                     // EnterLog(Inair.First().Type, FPM, gees, Inair.Last().AirspeedInd, Inair.Last().GroundSpeed, Inair.Last().WindHead, Inair.Last().WindLat, incAngle);
-                    viewModel.SetParams(new ViewModel.Parameters {
+                    viewModel.SetParams(new ViewModel.Parameters
+                    {
                         Name = Inair.First().Type,
                         FPM = FPM,
                         Gees = Math.Round(gees, 2),
@@ -244,7 +273,8 @@ namespace GeesWPF {
                     winLRM.SlideLeft();
                     bounces++;
                 }
-                else {
+                else
+                {
                     viewModel.BounceParams();
                 }
 
@@ -255,13 +285,15 @@ namespace GeesWPF {
                 Onground.Clear();
                 ShowLanding = false;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.WriteLine(ex.Message);
                 //some params are missing. likely the user is in the main menu. ignore
             }
         }
 
-        private void timerBounce_Tick(object sender, EventArgs e) {
+        private void timerBounce_Tick(object sender, EventArgs e)
+        {
             bounces = 0;
             viewModel.LogParams();
             timerBounce.Stop();
@@ -271,35 +303,51 @@ namespace GeesWPF {
 
         #region Sim Connection
 
-        private void timerConnection_Tick(object sender, EventArgs e) {
+        private void timerConnection_Tick(object sender, EventArgs e)
+        {
             if (!backgroundConnector.IsBusy)
                 backgroundConnector.RunWorkerAsync();
 
-            if (fsConnect.Connected) {
+            if (fsConnect.Connected)
+            {
                 timerRead.Start();
                 notifyIcon.Icon = Properties.Resources.online;
                 viewModel.Connected = true;
                 isConnected = true;
             }
-            else {
-                if (isConnected) {
-                    Properties.Settings.Default.Save();
-                    notifyIcon.Visible = false;
-                    Environment.Exit(1);
-                }
-
+            else
+            {
                 notifyIcon.Icon = Properties.Resources.offline;
                 viewModel.Connected = false;
+
+                if (isConnected)
+                {
+                    if (Properties.Settings.Default.AutoCloseWithSim)
+                    {
+                        Properties.Settings.Default.Save();
+                        notifyIcon.Visible = false;
+                        Environment.Exit(1);
+                    }
+                    else
+                    {
+                        isConnected = false;
+                    }
+                }
             }
         }
 
-        private void backgroundConnector_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e) {
-            if (!fsConnect.Connected) {
-                try {
+        private void backgroundConnector_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            if (!fsConnect.Connected)
+            {
+                try
+                {
                     fsConnect.Connect("TestApp", "localhost", 500, SimConnectProtocol.Ipv4);
                     fsConnect.RegisterDataDefinition<PlaneInfoResponse>(Requests.PlaneInfo, definition);
                 }
-                catch { } // ignore
+                catch
+                {
+                } // ignore
             }
         }
 
@@ -307,59 +355,80 @@ namespace GeesWPF {
 
         #region Handlers for UI
 
-        private void button_Click(object sender, RoutedEventArgs e) {
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
             // notifyIcon.Visible = false;
             Properties.Settings.Default.Save();
             notifyIcon.Visible = false;
             Environment.Exit(1);
         }
 
-        private void button_Hide_Click(object sender, RoutedEventArgs e) {
+        private void auto_close(object sender, RoutedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+        }
+
+        private void button_Hide_Click(object sender, RoutedEventArgs e)
+        {
             this.Hide();
         }
 
-        private void redditLink_MouseDown(object sender, MouseButtonEventArgs e) {
+        private void redditLink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
             Process.Start("https://www.reddit.com/r/MSFS2020LandingRate/");
         }
 
-        private void githubLink_MouseDown(object sender, MouseButtonEventArgs e) {
+        private void githubLink_MouseDown(object sender, MouseButtonEventArgs e)
+        {
             Process.Start("https://github.com/scelts/gees");
         }
 
-        private void buttonUpdate_Click(object sender, RoutedEventArgs e) {
+        private void buttonUpdate_Click(object sender, RoutedEventArgs e)
+        {
             Process.Start(updateUri);
         }
 
-        private void buttonLandings_Click(object sender, RoutedEventArgs e) {
+        private void buttonLandings_Click(object sender, RoutedEventArgs e)
+        {
             LandingsWindow winland = new LandingsWindow(viewModel);
             winland.Show();
         }
 
-        private void buttonTest_Click(object sender, RoutedEventArgs e) {
+        private void buttonTest_Click(object sender, RoutedEventArgs e)
+        {
             winLRM.SlideLeft();
         }
 
-        private void textBox_TextChanged(object sender, TextChangedEventArgs e) {
-            if (int.TryParse(textBox.Text, out _)) {
+        private void textBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (int.TryParse(textBox.Text, out _))
+            {
                 Properties.Settings.Default.Save();
             }
-            else {
+            else
+            {
                 e.Handled = true;
             }
         }
 
-        private void checkBox_Checked(object sender, RoutedEventArgs e) {
+        private void checkBox_Checked(object sender, RoutedEventArgs e)
+        {
             Properties.Settings.Default.Save();
         }
 
-        private void textBox_PreviewTextInput(object sender, TextCompositionEventArgs e) {
-            if (int.TryParse(e.Text, out _)) { }
-            else {
+        private void textBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            if (int.TryParse(e.Text, out _))
+            {
+            }
+            else
+            {
                 e.Handled = true;
             }
         }
 
-        private void comboBoxScreens_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+        private void comboBoxScreens_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
             Properties.Settings.Default.Save();
         }
 
@@ -407,19 +476,22 @@ namespace GeesWPF {
 
         #region System Tray handling
 
-        private void notifyIcon_MouseClick(object sender, MouseEventArgs e) {
+        private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
+        {
             if (lastDeactivateValid && Environment.TickCount - lastDeactivateTick < 1000) return;
             this.Show();
             this.Activate();
         }
 
-        private void Window_Deactivated(object sender, EventArgs e) {
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
             lastDeactivateTick = Environment.TickCount;
             lastDeactivateValid = true;
             this.Hide();
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e) {
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
             e.Cancel = true;
             Hide();
         }
@@ -428,7 +500,8 @@ namespace GeesWPF {
 
         #region Updater
 
-        private void backgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e) {
+        private void backgroundWorkerUpdate_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
             var client = new GitHubClient(new ProductHeaderValue("Gees"));
             var releases = client.Repository.Release.GetAll("scelts", "gees").Result;
             var latest = releases[0];
