@@ -118,5 +118,50 @@ namespace GeesWPF.Properties {
                 this["LandingY"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OledFriendly
+        {
+            get
+            {
+                return ((bool)(this["OledFriendly"]));
+            }
+            set
+            {
+                this["OledFriendly"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FF1D3557")]
+        public string OledColourScheme
+        {
+            get
+            {
+                return ((string)(this["OledColourScheme"]));
+            }
+            set
+            {
+                this["OledColourScheme"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FFA8DADC")]
+        public string OledColourSchemeBtn
+        {
+            get
+            {
+                return ((string)(this["OledColourSchemeBtn"]));
+            }
+            set
+            {
+                this["OledColourSchemeBtn"] = value;
+            }
+        }
     }
 }

@@ -71,6 +71,7 @@ namespace GeesWPF
         int bounces = 0;
         int myDefineId;
         bool isConnected = false;
+        bool oled = Properties.Settings.Default.OledFriendly;
 
         const int SAMPLE_RATE = 20; //ms
         const int BUFFER_SIZE = 2;
@@ -429,6 +430,23 @@ namespace GeesWPF
 
         private void comboBoxScreens_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            Properties.Settings.Default.Save();
+        }
+
+        private void oled_friendly(object sender, RoutedEventArgs e)
+        {
+            oled = !oled;
+            if (oled)
+            {
+                Properties.Settings.Default.OledColourScheme = "#000";
+                Properties.Settings.Default.OledColourSchemeBtn = "#000";
+            }
+            else
+            {
+                Properties.Settings.Default.OledColourScheme = "#FF1D3557";
+                Properties.Settings.Default.OledColourSchemeBtn = "#FFA8DADC";
+            }
+            Properties.Settings.Default.OledFriendly = oled;
             Properties.Settings.Default.Save();
         }
 

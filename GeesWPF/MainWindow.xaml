@@ -7,7 +7,7 @@
         xmlns:properties="clr-namespace:GeesWPF.Properties"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="GeesWPF.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="490.8" Width="343.2" ResizeMode="NoResize" Background="#FF1D3557" Deactivated="Window_Deactivated" Topmost="True" WindowStyle="None" ShowInTaskbar="False">
+        Title="MainWindow" Height="490.8" Width="343.2" ResizeMode="NoResize" Background="{Binding OledColourScheme, Source={x:Static properties:Settings.Default}}" Deactivated="Window_Deactivated" Topmost="True" WindowStyle="None" ShowInTaskbar="False">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
         <Style TargetType="{x:Type Button}" x:Key="DarkButton">
@@ -31,6 +31,7 @@
     <Grid Margin="0,0,-0.2,0">
         <Label x:Name="title" Content="Gees" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" FontSize="20"/>
         <Button x:Name="button" Content="Quit" HorizontalAlignment="Left" Margin="258,13,0,0" VerticalAlignment="Top" Width="75" Foreground="#FFF1FAEE" Height="37" Click="button_Click" Style="{DynamicResource DarkButton}"/>
+        <CheckBox x:Name="oledFirendly" Content="OLED friendly" HorizontalAlignment="Left" Margin="15,60,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" IsChecked="{Binding OledFriendly, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Click="oled_friendly"/>
         <CheckBox x:Name="autoClose" Content="Quit with Simulator" HorizontalAlignment="Left" Margin="180,60,0,0" VerticalAlignment="Top" Foreground="#FFF1FAEE" IsChecked="{Binding AutoCloseWithSim, Mode=TwoWay, Source={x:Static properties:Settings.Default}}" Checked="auto_close"/>
         <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Margin="13,80,0,0" TextWrapping="Wrap" Text="In game landing analysis for Microsoft Flight Simulator 2020" VerticalAlignment="Top" Foreground="#FFF1FAEE" FontSize="16" Width="320">
 
